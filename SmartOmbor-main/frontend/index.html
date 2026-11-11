@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartOmbor — API Frontend</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="bi bi-box-seam"></i> SmartOmbor</div>
+    <div id="nav" class="hidden">
+      <div class="profile-menu"><a class="sidebar-link" data-page="profile"><i class="bi bi-person-circle"></i> Shaxsiy kabinet · <span id="navUser"></span></a></div>
+      <div class="sidebar-section">MENU</div>
+      <div id="navRahbar">
+        <a class="sidebar-link" data-page="dashboard"><i class="bi bi-grid-1x2"></i> Bosh menu</a>
+        <a class="sidebar-link" data-page="sellers_report"><i class="bi bi-people"></i> Sotuvchilar hisoboti</a>
+        <a class="sidebar-link" data-page="inventory_report"><i class="bi bi-clipboard-data"></i> Ombor hisoboti</a>
+        <a class="sidebar-link" data-page="manager_orders"><i class="bi bi-receipt"></i> Barcha buyurtmalar</a>
+        <a class="sidebar-link" data-page="users"><i class="bi bi-people"></i> Foydalanuvchilar</a>
+      </div>
+      <div id="navCommon">
+        <a class="sidebar-link" data-page="products"><i class="bi bi-box"></i> Mahsulotlar</a>
+        <a class="sidebar-link" data-page="categories"><i class="bi bi-tags"></i> Kategoriyalar</a>
+        <a class="sidebar-link" data-page="movements"><i class="bi bi-arrow-left-right"></i> Ombor</a>
+        <a class="sidebar-link" data-page="orders"><i class="bi bi-cart3"></i> Buyurtmalar</a>
+      </div>
+      <div style="margin-top:auto">
+        <hr style="border-color:rgba(255,255,255,.16)">
+        <button class="btn btn-danger w-100" id="logoutBtn"><i class="bi bi-box-arrow-left"></i> Tizimdan chiqish</button>
+      </div>
+    </div>
+  </aside>
+  <div class="main-area">
+    <header class="top-header">
+      <span class="fw-semibold text-secondary" id="pageHeading">SmartOmbor — API Frontend (fetch → API)</span>
+      <span class="ms-auto badge text-bg-light" id="apiBadge">API: —</span>
+    </header>
+    <main class="content-area">
+      <div id="alert" class="alert alert-danger hidden"></div>
+      <section id="page-login">
+        <div class="card p-4 mx-auto" style="max-width:480px">
+          <h4>Tizimga kirish</h4>
+          <p class="text-muted small">JWT token oladi (POST {API_BASE}/auth/token/). Backend: <code id="apiHint">—</code></p>
+          <form id="loginForm" onsubmit="return false" autocomplete="on">
+            <div class="mb-3"><label class="form-label">Login</label><input name="username" class="form-control" required autofocus></div>
+            <div class="mb-3"><label class="form-label">Parol</label><input name="password" type="password" class="form-control" required></div>
+            <button class="btn btn-primary w-100">Kirish</button>
+          </form>
+        </div>
+      </section>
+      <section id="page-dashboard" class="hidden">
+        <h4>Bosh menu</h4>
+        <div class="row mb-3">
+          <div class="col-md-4"><div class="card p-3">Buyurtmalar: <b id="dOrders"></b></div></div>
+          <div class="col-md-4"><div class="card p-3">Savdo: <b id="dSum"></b></div></div>
+          <div class="col-md-4"><div class="card p-3">Foyda: <b id="dProfit"></b></div></div>
+        </div>
+        <div class="card p-3"><h6>Top mahsulotlar</h6><ul id="dTop"></ul></div>
+        <div class="card p-3 mt-3"><h6>Kam qolgan mahsulotlar</h6><div id="dLow"></div></div>
+      </section>
+      <section id="page-products" class="hidden">
+        <div class="d-flex gap-2 mb-3 align-items-center">
+          <h4 class="m-0">Mahsulotlar</h4>
+          <input id="prodQ" class="form-control" style="max-width:220px" placeholder="Qidiruv (q)">
+          <button class="btn btn-outline-primary" id="prodSearch">Qidirish</button>
+          <button class="btn btn-primary ms-auto" id="prodNew">+ Yangi</button>
+        </div>
+        <div class="card p-3"><div id="prodList"></div></div>
+      </section>
+      <section id="page-categories" class="hidden">
+        <h4>Kategoriyalar</h4>
+        <form id="catForm" class="card p-3 mb-3 d-flex gap-2">
+          <input name="nomi" class="form-control" placeholder="Nom" required>
+          <input name="description" class="form-control" placeholder="Izoh">
+          <button class="btn btn-primary">Qo'shish</button>
+        </form>
+        <div class="card p-3" id="catList"></div>
+      </section>
+      <section id="page-movements" class="hidden">
+        <div class="d-flex gap-2 mb-3"><h4 class="m-0">Ombor harakatlari</h4>
+          <input id="movQ" class="form-control" style="max-width:220px" placeholder="Mahsulot">
+          <button class="btn btn-outline-primary" id="movSearch">Filtr</button></div>
+        <form id="movForm" class="card p-3 mb-3 row g-2 align-items-end">
+          <div class="col-md-3"><label class="form-label">Mahsulot ID</label><input name="product" type="number" class="form-control" required></div>
+          <div class="col-md-2"><label class="form-label">Turi</label><select name="movement_type" class="form-select"><option value="IN">Kirim</option><option value="OUT">Chiqim</option></select></div>
+          <div class="col-md-2"><label class="form-label">Miqdor</label><input name="nechta" type="number" min="1" class="form-control" required></div>
+          <div class="col-md-3"><label class="form-label">Sabab</label><input name="sababi" class="form-control"></div>
+          <div class="col-md-2"><button class="btn btn-primary w-100">Saqlash</button></div>
+        </form>
+        <div class="card p-3" id="movList"></div>
+      </section>
+      <section id="page-orders" class="hidden">
+        <div class="d-flex gap-2 mb-3"><h4 class="m-0" id="ordersTitle">Buyurtmalar</h4>
+          <input id="ordQ" class="form-control" style="max-width:180px" placeholder="ID">
+          <button class="btn btn-outline-primary" id="ordSearch">Qidirish</button>
+          <button class="btn btn-primary ms-auto" id="ordNew">+ Yangi buyurtma</button></div>
+        <div class="card p-3" id="ordList"></div>
+        <div id="ordDetail" class="mt-3"></div>
+      </section>
+      <section id="page-users" class="hidden">
+        <h4>Foydalanuvchilar</h4>
+        <form id="userForm" class="card p-3 mb-3 row g-2">
+          <div class="col-md-2"><input name="username" class="form-control" placeholder="Login" required></div>
+          <div class="col-md-2"><input name="first_name" class="form-control" placeholder="Ism" required></div>
+          <div class="col-md-2"><input name="last_name" class="form-control" placeholder="Familiya" required></div>
+          <div class="col-md-2"><input name="email" type="email" class="form-control" placeholder="Email"></div>
+          <div class="col-md-2"><input name="password" class="form-control" placeholder="Parol" required></div>
+          <div class="col-md-2"><select name="role" class="form-select"><option>Omborchi</option><option>Sotuvchi</option><option>Rahbar</option></select></div>
+          <div class="col-12"><button class="btn btn-primary">Qo'shish</button></div>
+        </form>
+        <div class="card p-3" id="userList"></div>
+      </section>
+      <section id="page-sellers_report" class="hidden"><h4>Sotuvchilar hisoboti</h4><div class="card p-3" id="sellerList"></div></section>
+      <section id="page-inventory_report" class="hidden"><h4>Ombor hisoboti</h4><div class="card p-3" id="invReport"></div></section>
+      <section id="page-profile" class="hidden">
+        <h4>Shaxsiy kabinet</h4>
+        <div class="card p-3"><pre id="profileJson" class="mb-0"></pre></div>
+        <form id="profileForm" class="card p-3 mt-3 d-flex gap-2">
+          <input name="first_name" class="form-control" placeholder="Ism">
+          <input name="last_name" class="form-control" placeholder="Familiya">
+          <input name="email" type="email" class="form-control" placeholder="Email">
+          <button class="btn btn-primary">Saqlash</button>
+        </form>
+      </section>
+    </main>
+    <footer class="app-footer">SmartOmbor API Frontend · <span id="footUser"></span> · fetch() → API</footer>
+  </div>
+</div>
+<script src="./config.js"></script>
+<script src="./app.js"></script>
+<script>
+(function(){
+  var api = (window.API_BASE || "http://127.0.0.1:8000/api");
+  document.getElementById("apiBadge").textContent = "API: " + api;
+  document.getElementById("apiHint").textContent = api;
+  window.addEventListener("load", function(){
+    setTimeout(function(){
+      if (!window.__smartOmborLoaded){
+        var a=document.getElementById("alert");
+        if (a){ a.textContent="Xatolik: app.js yuklanmadi. Backend ishlayotganiga ishonch hosil qiling (http://127.0.0.1:8000/api/docs/ ochiladi) va sahifani hard-refresh qiling."; a.classList.remove("hidden"); }
+      }
+    }, 800);
+  });
+})();
+</script>
+</body>
+</html>

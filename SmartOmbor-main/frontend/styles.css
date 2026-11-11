@@ -1,0 +1,15 @@
+body{background:#e9eff7;font-family:"Segoe UI",sans-serif;color:#263449}
+.app-layout{display:flex;min-height:100vh}
+.sidebar{width:270px;min-width:270px;background:linear-gradient(180deg,#172b46,#203c5c);color:#fff;padding:22px 15px;display:flex;flex-direction:column}
+.sidebar-brand{color:#fff;font-size:23px;font-weight:800;text-decoration:none;padding:8px 12px 24px;display:block}
+.sidebar-section{color:#91a9c5;font-size:11px;font-weight:700;letter-spacing:1.2px;padding:12px 13px 8px}
+.sidebar-link{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:3px 0;color:#d5e1ef;text-decoration:none;border-radius:9px;font-size:14px;cursor:pointer}
+.sidebar-link:hover{color:#fff;background:rgba(255,255,255,.1)}
+.sidebar-link.active{color:#fff;background:#356da5}
+.main-area{flex:1;display:flex;flex-direction:column;min-width:0}
+.top-header{min-height:65px;background:rgba(255,255,255,.72);border-bottom:1px solid rgba(100,120,150,.12);display:flex;align-items:center;padding:12px 25px;gap:12px}
+.content-area{flex:1;padding:28px;background:linear-gradient(135deg,#eaf0f8,#e2eaf4)}
+.card{border:1px solid rgba(100,120,150,.12);border-radius:13px;box-shadow:0 5px 18px rgba(30,50,80,.06)}
+.app-footer{padding:15px;text-align:center;color:#74839a;font-size:12px;background:#e5ebf3}
+.hidden{display:none!important}
+@media(max-width:991.98px){.app-layout{display:block}.sidebar{width:100%;min-width:0}.content-area{padding:18px 12px}}
